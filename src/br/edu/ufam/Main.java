@@ -15,12 +15,15 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         BufferedImage img = carregarImagem("original.jpg");
-        int[][] dadosImagem = converterImagemParaVetor(img);
+        int[][] dadosImagem = converterImagemParaVetorCinza(img);
         int[][] dadosNegativo = criarNegativo(dadosImagem);
-        salvarImagemEmJPEG(converterVetorEmImagem(dadosNegativo), "negativo.jpg");
-        List<Point> centroides = encontrarCentroides(dadosImagem, Color.white.getRGB(), Color.black.getRGB());
+        List<Point> centroides = encontrarCentroides(dadosNegativo);
         System.out.println("centroides: " + centroides.size());
-        // TODO eliminar o circulo ao redor dos centroides
+        for (Point p : centroides) {
+            System.out.println(p.getX() + "," + p.getY());
+            eliminarCirculo(dadosNegativo, (int) p.getX(), (int) p.getY());
+        }
+        salvarImagemEmJPEG(converterVetorCinzaEmImagem(dadosNegativo), "negativo.png");
         // TODO calcular caminhamento minimo para 4-n
         // TODO calcular caminhamento minimo para 8-n
         // TODO extrair a borda interna do background (piso)
@@ -28,18 +31,26 @@ public class Main {
         // TODO implementar a equalizacao da imagem
     }
 
-    private static List<Point> encontrarCentroides(int[][] dados, int corCentroide, int corEntorno) {
+    private static void eliminarCirculo(int[][] img, int x, int y) {
+        // aplica um patch de 12x12 pixels pretos a partir do centro
+        for (int i = x - 6; i < x + 6; i++) {
+            for (int j = y - 6; j < y + 6; j++) {
+                img[i][j] = 0;
+            }
+        }
+    }
+
+    private static List<Point> encontrarCentroides(int[][] img) {
         List<Point> centroides = new ArrayList<Point>();
-        for (int x = 0; x < dados.length; x++) {
-            for (int y = 0; y < dados[x].length; y++) {
-                // Desprezar as bordas da imagem
-                if (x <= 0 || y <= 0 || x+1 == dados.length || y+1==dados[x].length) {
+        for (int x = 0; x < img.length; x++) {
+            for (int y = 0; y < img[x].length; y++) {
+                // Despreza as bordas da imagem
+                if (x <= 0 || y <= 0 || x + 1 == img.length || y + 1 == img[x].length) {
                     continue;
                 }
                 // Busca na vizinhança 4 se o o ponto atual é um centroide
-                boolean ehCentroide = dados[x][y] == corCentroide && dados[x-1][y] == corEntorno && dados[x][y+1] == corEntorno
-                        && dados[x+1][y] == corEntorno && dados[x][y-1] == corEntorno;
-                if (ehCentroide) {
+                if (img[x][y] < 5 && img[x - 1][y] >= 250 && img[x][y + 1] >= 250 && img[x + 1][y] >= 250
+                        && img[x][y - 1] >= 250) {
                     centroides.add(new Point(x, y));
                 }
             }
@@ -55,25 +66,27 @@ public class Main {
         ImageIO.write(imgNegativo, "jpg", new File(caminho));
     }
 
-    private static int[][] converterImagemParaVetor(BufferedImage img) {
+    private static int[][] converterImagemParaVetorCinza(BufferedImage img) {
         int largura = img.getWidth();
         int altura = img.getHeight();
         int[][] dados = new int[largura][altura];
         for (int x = 0; x < largura; x++) {
             for (int y = 0; y < altura; y++) {
-                dados[x][y] = img.getRGB(x, y);
+                Color c = new Color(img.getRGB(x, y));
+                dados[x][y] = (c.getRed() + c.getBlue() + c.getGreen()) / 3;
             }
         }
         return dados;
     }
 
-    private static BufferedImage converterVetorEmImagem(int[][] dados) {
+    private static BufferedImage converterVetorCinzaEmImagem(int[][] dados) {
         BufferedImage retorno = new BufferedImage(dados.length, dados[0].length, ColorSpace.TYPE_RGB);
         int largura = retorno.getWidth();
         int altura = retorno.getHeight();
         for (int x = 0; x < largura; x++) {
             for (int y = 0; y < altura; y++) {
-                retorno.setRGB(x, y, dados[x][y]);
+                int cinza = dados[x][y];
+                retorno.setRGB(x, y, new Color(cinza, cinza, cinza).getRGB());
             }
         }
         return retorno;
@@ -83,9 +96,7 @@ public class Main {
         int[][] negativo = new int[dados.length][dados[0].length];
         for (int x = 0; x < negativo.length; x++) {
             for (int y = 0; y < negativo[x].length; y++) {
-                Color c = new Color(dados[x][y]);
-                c = new Color(255 - c.getRed(), 255 - c.getGreen(), 255 - c.getBlue());
-                negativo[x][y] = c.getRGB();
+                negativo[x][y] = 255 - dados[x][y];
             }
         }
         return negativo;
