@@ -1,10 +1,13 @@
 package br.edu.ufam;
 
 import java.awt.Color;
+import java.awt.Point;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -15,13 +18,33 @@ public class Main {
         int[][] dadosImagem = converterImagemParaVetor(img);
         int[][] dadosNegativo = criarNegativo(dadosImagem);
         salvarImagemEmJPEG(converterVetorEmImagem(dadosNegativo), "negativo.jpg");
-        // TODO encontrar os dois centroides
+        List<Point> centroides = encontrarCentroides(dadosImagem, Color.white.getRGB(), Color.black.getRGB());
+        System.out.println("centroides: " + centroides.size());
         // TODO eliminar o circulo ao redor dos centroides
         // TODO calcular caminhamento minimo para 4-n
         // TODO calcular caminhamento minimo para 8-n
         // TODO extrair a borda interna do background (piso)
         // TODO aplicar janela de interesse (produto de kronecher) e fazer zoom usando interpolacao bilinear
         // TODO implementar a equalizacao da imagem
+    }
+
+    private static List<Point> encontrarCentroides(int[][] dados, int corCentroide, int corEntorno) {
+        List<Point> centroides = new ArrayList<Point>();
+        for (int x = 0; x < dados.length; x++) {
+            for (int y = 0; y < dados[x].length; y++) {
+                // Desprezar as bordas da imagem
+                if (x <= 0 || y <= 0 || x+1 == dados.length || y+1==dados[x].length) {
+                    continue;
+                }
+                // Busca na vizinhança 4 se o o ponto atual é um centroide
+                boolean ehCentroide = dados[x][y] == corCentroide && dados[x-1][y] == corEntorno && dados[x][y+1] == corEntorno
+                        && dados[x+1][y] == corEntorno && dados[x][y-1] == corEntorno;
+                if (ehCentroide) {
+                    centroides.add(new Point(x, y));
+                }
+            }
+        }
+        return centroides;
     }
 
     private static BufferedImage carregarImagem(String caminhoImagem) throws IOException {
