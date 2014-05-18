@@ -91,7 +91,7 @@ public class AStar {
     private static double calcularCustoVizinhos(int[][] dados, Point p, Point q) {
         int valorP = dados[(int) p.getX()][(int) p.getY()];
         int valorQ = dados[(int) q.getX()][(int) q.getY()];
-        return Math.abs(valorP - valorQ);
+        return (Math.abs(valorP - valorQ) + 1) * 1000;
     }
 
     private static List<Point> listarVizinhos4N(int[][] dados, Point p) {

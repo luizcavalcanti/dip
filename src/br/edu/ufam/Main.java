@@ -19,11 +19,10 @@ public class Main {
 
         int[][] dadosNegativo = criarNegativo(dadosImagem);
         List<Point> centroides = encontrarCentroides(dadosNegativo);
-        System.out.println("centroides: " + centroides.size());
         for (Point p : centroides) {
-            System.out.println(p.getX() + "," + p.getY());
             eliminarCirculo(dadosNegativo, (int) p.getX(), (int) p.getY());
         }
+        salvarImagemEmPNG(converterVetorCinzaEmImagem(dadosNegativo), "negativo.png");
 
         // Busca caminho mínimo com 4 vizinhos
         List<Point> caminho4 = AStar.caminhoMinimo4N(dadosNegativo, centroides.get(0), centroides.get(1));
@@ -47,7 +46,10 @@ public class Main {
 
         // TODO extrair a borda interna do background (piso)
         // TODO aplicar janela de interesse (produto de kronecher) e fazer zoom usando interpolacao bilinear
-        // TODO implementar a equalizacao da imagem
+
+        // Equalização da imagem
+        int[][] dadosEqualizado = HistogramEqualization.equalizarHistograma(dadosNegativo, 255, 0, 255); // dadosNegativo.clone();
+        salvarImagemEmPNG(converterVetorCinzaEmImagem(dadosEqualizado), "equalizado.png");
     }
 
     private static void eliminarCirculo(int[][] img, int x, int y) {
