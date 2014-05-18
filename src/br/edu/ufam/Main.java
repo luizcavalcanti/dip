@@ -16,6 +16,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         BufferedImage img = carregarImagem("original.jpg");
         int[][] dadosImagem = converterImagemParaVetorCinza(img);
+
         int[][] dadosNegativo = criarNegativo(dadosImagem);
         List<Point> centroides = encontrarCentroides(dadosNegativo);
         System.out.println("centroides: " + centroides.size());
@@ -23,9 +24,27 @@ public class Main {
             System.out.println(p.getX() + "," + p.getY());
             eliminarCirculo(dadosNegativo, (int) p.getX(), (int) p.getY());
         }
-        salvarImagemEmJPEG(converterVetorCinzaEmImagem(dadosNegativo), "negativo.png");
-        // TODO calcular caminhamento minimo para 4-n
-        // TODO calcular caminhamento minimo para 8-n
+
+        // Busca caminho mínimo com 4 vizinhos
+        List<Point> caminho4 = AStar.caminhoMinimo4N(dadosNegativo, centroides.get(0), centroides.get(1));
+        int[][] dados4N = dadosNegativo.clone();
+        for (Point p : caminho4) {
+            int x = (int) p.getX();
+            int y = (int) p.getY();
+            dados4N[x][y] = 255;
+        }
+        salvarImagemEmPNG(converterVetorCinzaEmImagem(dados4N), "caminho4N.png");
+
+        // Busca caminho mínimo com 8 vizinhos
+        List<Point> caminho8 = AStar.caminhoMinimo8N(dadosNegativo, centroides.get(0), centroides.get(1));
+        int[][] dados8N = dadosNegativo.clone();
+        for (Point p : caminho8) {
+            int x = (int) p.getX();
+            int y = (int) p.getY();
+            dados8N[x][y] = 255;
+        }
+        salvarImagemEmPNG(converterVetorCinzaEmImagem(dados8N), "caminho8N.png");
+
         // TODO extrair a borda interna do background (piso)
         // TODO aplicar janela de interesse (produto de kronecher) e fazer zoom usando interpolacao bilinear
         // TODO implementar a equalizacao da imagem
@@ -62,8 +81,8 @@ public class Main {
         return ImageIO.read(new File(caminhoImagem));
     }
 
-    private static void salvarImagemEmJPEG(BufferedImage imgNegativo, String caminho) throws IOException {
-        ImageIO.write(imgNegativo, "jpg", new File(caminho));
+    private static void salvarImagemEmPNG(BufferedImage imgNegativo, String caminho) throws IOException {
+        ImageIO.write(imgNegativo, "png", new File(caminho));
     }
 
     private static int[][] converterImagemParaVetorCinza(BufferedImage img) {
