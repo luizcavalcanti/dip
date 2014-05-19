@@ -15,10 +15,17 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         BufferedImage img = carregarImagem("original.jpg");
+        // Converte imagem para tons de cinza
         int[][] dadosImagem = converterImagemParaVetorCinza(img);
 
+        // Criação de imagem negativa
         int[][] dadosNegativo = criarNegativo(dadosImagem);
+        // Encontra os dois centroides da imagem
         List<Point> centroides = encontrarCentroides(dadosNegativo);
+        if (centroides.size() != 2) {
+            System.err.println("Não foi possível encontrar dois centróides na imagem");
+            System.exit(1);
+        }
         for (Point p : centroides) {
             eliminarCirculo(dadosNegativo, (int) p.getX(), (int) p.getY());
         }
@@ -44,12 +51,14 @@ public class Main {
         }
         salvarImagemEmPNG(converterVetorCinzaEmImagem(dados8N), "caminho8N.png");
 
-        // TODO extrair a borda interna do background (piso)
-        // TODO aplicar janela de interesse (produto de kronecher) e fazer zoom usando interpolacao bilinear
-
         // Equalização da imagem
         int[][] dadosEqualizado = HistogramEqualization.equalizarHistograma(dadosNegativo, 255, 0, 255); // dadosNegativo.clone();
         salvarImagemEmPNG(converterVetorCinzaEmImagem(dadosEqualizado), "equalizado.png");
+
+        // TODO extrair a borda interna do background (piso)
+
+        // TODO aplicar janela de interesse (produto de kronecher) e fazer zoom usando interpolacao bilinear
+
     }
 
     private static void eliminarCirculo(int[][] img, int x, int y) {
