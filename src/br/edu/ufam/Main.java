@@ -1,6 +1,7 @@
 package br.edu.ufam;
 
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
@@ -29,7 +30,8 @@ public class Main {
         for (Point p : centroides) {
             eliminarCirculo(dadosNegativo, (int) p.getX(), (int) p.getY());
         }
-        salvarImagemEmPNG(converterVetorCinzaEmImagem(dadosNegativo), "negativo.png");
+        BufferedImage imgNegativo = converterVetorCinzaEmImagem(dadosNegativo);
+        salvarImagemEmPNG(imgNegativo, "negativo.png");
 
         // Busca caminho mínimo com 4 vizinhos
         List<Point> caminho4 = AStar.caminhoMinimo4N(dadosNegativo, centroides.get(0), centroides.get(1));
@@ -52,11 +54,20 @@ public class Main {
         salvarImagemEmPNG(converterVetorCinzaEmImagem(dados8N), "caminho8N.png");
 
         // Equalização da imagem
-        int[][] dadosEqualizado = HistogramEqualization.equalizarHistograma(dadosNegativo, 255, 0, 255); // dadosNegativo.clone();
+        int[][] dadosEqualizado = HistogramEqualization.equalizarHistograma(dadosNegativo, 255, 0, 255); //
+        dadosNegativo.clone();
         salvarImagemEmPNG(converterVetorCinzaEmImagem(dadosEqualizado), "equalizado.png");
 
-        // TODO extrair a borda interna do background (piso)
-
+        // Extrai borda interna da imagem a partir do primeiro centróide
+        List<Point> bordaInterna = BorderSearch.extrairBordaInterna(dadosNegativo, centroides.get(0));
+        BufferedImage imgBordas = converterVetorCinzaEmImagem(dadosNegativo);
+        Graphics g = imgBordas.getGraphics();
+        g.setColor(Color.YELLOW);
+        System.out.println(bordaInterna.size());
+        for (Point p : bordaInterna) {
+            g.fillRect((int) p.getX(), (int) p.getY(), 1, 1);
+        }
+        salvarImagemEmPNG(imgBordas, "bordas.png");
         // TODO aplicar janela de interesse (produto de kronecher) e fazer zoom usando interpolacao bilinear
 
     }
