@@ -8,34 +8,40 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 
 public class Main {
 
     public static void main(String[] args) throws IOException {
+        // Carrega a imagem do disco
         BufferedImage img = carregarImagem("original.jpg");
+
         // Converte imagem para tons de cinza
-        int[][] dadosImagem = converterImagemParaVetorCinza(img);
+        int[][] imgCinza = converterImagemParaVetorCinza(img);
 
         // Criação de imagem negativa
-        int[][] dadosNegativo = criarNegativo(dadosImagem);
+        int[][] imgNegativo = criarNegativo(imgCinza);
+        salvarImagemEmPNG(converterVetorCinzaEmImagem(imgNegativo), "negativo.png");
+
         // Encontra os dois centroides da imagem
-        List<Point> centroides = encontrarCentroides(dadosNegativo);
+        List<Point> centroides = encontrarCentroides(imgNegativo);
         if (centroides.size() != 2) {
             System.err.println("Não foi possível encontrar dois centróides na imagem");
             System.exit(1);
         }
+        int[][] imgSemCentroides = copiarVetor(imgNegativo);
         for (Point p : centroides) {
-            eliminarCirculo(dadosNegativo, (int) p.getX(), (int) p.getY());
+            eliminarCirculo(imgSemCentroides, (int) p.getX(), (int) p.getY());
         }
-        BufferedImage imgNegativo = converterVetorCinzaEmImagem(dadosNegativo);
-        salvarImagemEmPNG(imgNegativo, "negativo.png");
+        salvarImagemEmPNG(converterVetorCinzaEmImagem(imgNegativo), "negativo-sem_centroides.png");
 
         // Busca caminho mínimo com 4 vizinhos
-        List<Point> caminho4 = AStar.caminhoMinimo4N(dadosNegativo, centroides.get(0), centroides.get(1));
-        int[][] dados4N = dadosNegativo.clone();
+        List<Point> caminho4 = AStar.caminhoMinimo4N(imgSemCentroides, centroides.get(0), centroides.get(1));
+        int[][] dados4N = copiarVetor(imgSemCentroides);
         for (Point p : caminho4) {
             int x = (int) p.getX();
             int y = (int) p.getY();
@@ -44,8 +50,8 @@ public class Main {
         salvarImagemEmPNG(converterVetorCinzaEmImagem(dados4N), "caminho4N.png");
 
         // Busca caminho mínimo com 8 vizinhos
-        List<Point> caminho8 = AStar.caminhoMinimo8N(dadosNegativo, centroides.get(0), centroides.get(1));
-        int[][] dados8N = dadosNegativo.clone();
+        List<Point> caminho8 = AStar.caminhoMinimo8N(imgSemCentroides, centroides.get(0), centroides.get(1));
+        int[][] dados8N = copiarVetor(imgSemCentroides);
         for (Point p : caminho8) {
             int x = (int) p.getX();
             int y = (int) p.getY();
@@ -54,13 +60,12 @@ public class Main {
         salvarImagemEmPNG(converterVetorCinzaEmImagem(dados8N), "caminho8N.png");
 
         // Equalização da imagem
-        int[][] dadosEqualizado = HistogramEqualization.equalizarHistograma(dadosNegativo, 255, 0, 255); //
-        dadosNegativo.clone();
+        int[][] dadosEqualizado = HistogramEqualization.equalizarHistograma(imgNegativo, 255, 0, 255);
         salvarImagemEmPNG(converterVetorCinzaEmImagem(dadosEqualizado), "equalizado.png");
 
         // Extrai borda interna da imagem a partir do primeiro centróide
-        List<Point> bordaInterna = BorderSearch.extrairBordaInterna(dadosNegativo, centroides.get(0));
-        BufferedImage imgBordas = converterVetorCinzaEmImagem(dadosNegativo);
+        Set<Point> bordaInterna = ConnectedRegionSearch.extractConnectedRegion(imgSemCentroides, centroides.get(0));
+        BufferedImage imgBordas = converterVetorCinzaEmImagem(imgSemCentroides);
         Graphics g = imgBordas.getGraphics();
         g.setColor(Color.YELLOW);
         System.out.println(bordaInterna.size());
@@ -68,8 +73,17 @@ public class Main {
             g.fillRect((int) p.getX(), (int) p.getY(), 1, 1);
         }
         salvarImagemEmPNG(imgBordas, "bordas.png");
+
         // TODO aplicar janela de interesse (produto de kronecher) e fazer zoom usando interpolacao bilinear
 
+    }
+
+    private static int[][] copiarVetor(int[][] vetor) {
+        int[][] copia = new int[vetor.length][vetor[0].length];
+        for (int i = 0; i < vetor.length; i++) {
+            copia[i] = Arrays.copyOf(vetor[i], vetor.length);
+        }
+        return copia;
     }
 
     private static void eliminarCirculo(int[][] img, int x, int y) {
