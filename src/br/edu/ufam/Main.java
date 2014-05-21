@@ -37,7 +37,7 @@ public class Main {
         for (Point p : centroides) {
             eliminarCirculo(imgSemCentroides, (int) p.getX(), (int) p.getY());
         }
-        salvarImagemEmPNG(converterVetorCinzaEmImagem(imgNegativo), "negativo-sem_centroides.png");
+        salvarImagemEmPNG(converterVetorCinzaEmImagem(imgSemCentroides), "negativo-sem_centroides.png");
 
         // Busca caminho mínimo com 4 vizinhos
         List<Point> caminho4 = AStar.caminhoMinimo4N(imgSemCentroides, centroides.get(0), centroides.get(1));
@@ -81,7 +81,7 @@ public class Main {
     private static int[][] copiarVetor(int[][] vetor) {
         int[][] copia = new int[vetor.length][vetor[0].length];
         for (int i = 0; i < vetor.length; i++) {
-            copia[i] = Arrays.copyOf(vetor[i], vetor.length);
+            copia[i] = Arrays.copyOf(vetor[i], vetor[i].length);
         }
         return copia;
     }
