@@ -12,9 +12,9 @@ import java.util.Set;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        BufferedImage img = ImageIOUtils.loadImageFromFile("original.jpg");
+        BufferedImage imgRobot = ImageIOUtils.loadImageFromFile("robot.jpg");
 
-        int[][] imgData = ImageIOUtils.getImageData(img);
+        int[][] imgData = ImageIOUtils.getImageData(imgRobot);
         int[][] imgDataGrayscale = ImageTransformations.convertToGrayscale(imgData);
 
         // Criação de imagem negativa
