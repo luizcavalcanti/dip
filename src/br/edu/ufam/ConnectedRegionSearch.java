@@ -1,5 +1,6 @@
 package br.edu.ufam;
 
+import java.awt.Color;
 import java.awt.Point;
 import java.util.HashSet;
 import java.util.Set;
@@ -66,10 +67,11 @@ public class ConnectedRegionSearch {
     }
 
     private static boolean closeEnough(int aPixel, int bPixel) {
-         if (Math.abs(aPixel - bPixel) < 16) {
-//        if (aPixel == bPixel) {
-            return true;
-        }
-        return false;
+        Color aColor = new Color(aPixel);
+        Color bColor = new Color(bPixel);
+        int rDiff = Math.abs(aColor.getRed() - bColor.getRed());
+        int gDiff = Math.abs(aColor.getGreen() - bColor.getGreen());
+        int bDiff = Math.abs(aColor.getBlue() - bColor.getBlue());
+        return (rDiff + gDiff + bDiff) < 20;
     }
 }

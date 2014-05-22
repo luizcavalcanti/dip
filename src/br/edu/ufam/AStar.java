@@ -1,5 +1,6 @@
 package br.edu.ufam;
 
+import java.awt.Color;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,90 +12,96 @@ import java.util.Set;
 
 public class AStar {
 
-    public static List<Point> caminhoMinimo8N(int[][] dados, Point partida, Point chegada) {
-        return caminhoMinimo(dados, partida, chegada, false);
+    private static int WALKING_4N = 0;
+    private static int WALKING_8N = 1;
+
+    public static List<Point> get4NShortestPath(int[][] dados, Point partida, Point chegada) {
+        return aStar(dados, partida, chegada, WALKING_4N);
     }
 
-    public static List<Point> caminhoMinimo4N(int[][] dados, Point partida, Point chegada) {
-        return caminhoMinimo(dados, partida, chegada, true);
+    public static List<Point> get8NShortestPath(int[][] dados, Point partida, Point chegada) {
+        return aStar(dados, partida, chegada, WALKING_8N);
     }
 
-    private static List<Point> caminhoMinimo(int[][] dados, Point partida, Point chegada, boolean usar4N) {
-        Map<Point, Double> custoG = new HashMap<Point, Double>();
-        Map<Point, Double> custoF = new HashMap<Point, Double>();
+    private static List<Point> aStar(int[][] imageData, Point start, Point end, int walkingMethod) {
+        Map<Point, Double> gCost = new HashMap<Point, Double>();
+        Map<Point, Double> fCost = new HashMap<Point, Double>();
 
-        Set<Point> fechado = new HashSet<Point>();
-        Set<Point> aberto = new HashSet<Point>();
-        Map<Point, Point> caminho = new HashMap<Point, Point>();
+        Set<Point> closed = new HashSet<Point>();
+        Set<Point> open = new HashSet<Point>();
+        Map<Point, Point> path = new HashMap<Point, Point>();
 
-        aberto.add(partida);
-        custoG.put(partida, 0D);
-        custoF.put(partida, calcularCustoHeuristico(partida, chegada));
+        open.add(start);
+        gCost.put(start, 0D);
+        fCost.put(start, calculateHeuristicCost(start, end));
 
-        while (!aberto.isEmpty()) {
+        while (!open.isEmpty()) {
             // Pega candidato com menor custo
-            Point pontoCorrente = null;
-            Iterator<Point> it = aberto.iterator();
+            Point currentPoint = null;
+            Iterator<Point> it = open.iterator();
             while (it.hasNext()) {
                 Point p = it.next();
-                if (pontoCorrente == null || custoF.get(p) < custoF.get(pontoCorrente)) {
-                    pontoCorrente = p;
+                if (currentPoint == null || fCost.get(p) < fCost.get(currentPoint)) {
+                    currentPoint = p;
                 }
             }
 
-            if (chegada.equals(pontoCorrente)) {
-                return reconstruirCaminho(chegada, caminho);
+            if (end.equals(currentPoint)) {
+                return reconstructPath(end, path);
             }
 
-            aberto.remove(pontoCorrente);
-            fechado.add(pontoCorrente);
+            open.remove(currentPoint);
+            closed.add(currentPoint);
 
             // Para cada vizinho...
-            List<Point> vizinhos = null;
-            if (usar4N) {
-                vizinhos = listarVizinhos4N(dados, pontoCorrente);
+            List<Point> neighbors = null;
+            if (walkingMethod == WALKING_4N) {
+                neighbors = list4Neighbors(imageData, currentPoint);
             } else {
-                vizinhos = listarVizinhos8N(dados, pontoCorrente);
+                neighbors = list8Neighbors(imageData, currentPoint);
             }
-            for (Point p : vizinhos) {
-                if (fechado.contains(p)) {
+            for (Point p : neighbors) {
+                if (closed.contains(p)) {
                     continue;
                 }
                 boolean melhor = false;
-                double g = custoG.get(pontoCorrente) + calcularCustoVizinhos(dados, pontoCorrente, p);
-                double h = calcularCustoHeuristico(p, chegada);
-                if (!aberto.contains(p)) {
-                    aberto.add(p);
+                double g = gCost.get(currentPoint) + calculateNeighborCost(imageData, currentPoint, p);
+                double h = calculateHeuristicCost(p, end);
+                if (!open.contains(p)) {
+                    open.add(p);
                     melhor = true;
-                } else if (g < custoG.get(pontoCorrente)) {
+                } else if (g < gCost.get(currentPoint)) {
                     melhor = true;
                 }
                 if (melhor) {
-                    caminho.put(p, pontoCorrente);
-                    custoG.put(p, g);
-                    custoF.put(p, g + h);
+                    path.put(p, currentPoint);
+                    gCost.put(p, g);
+                    fCost.put(p, g + h);
                 }
             }
         }
-        throw new RuntimeException("Não foi possível encontrar um caminho");
+        throw new RuntimeException("Can't find a valid path from " + start + " to " + end);
     }
 
-    private static List<Point> reconstruirCaminho(Point p, Map<Point, Point> caminho) {
+    private static List<Point> reconstructPath(Point p, Map<Point, Point> path) {
         List<Point> list = new ArrayList<Point>();
         list.add(p);
-        if (caminho.containsKey(p)) {
-            list.addAll(reconstruirCaminho(caminho.get(p), caminho));
+        if (path.containsKey(p)) {
+            list.addAll(reconstructPath(path.get(p), path));
         }
         return list;
     }
 
-    private static double calcularCustoVizinhos(int[][] dados, Point p, Point q) {
-        int valorP = dados[(int) p.getX()][(int) p.getY()];
-        int valorQ = dados[(int) q.getX()][(int) q.getY()];
-        return (Math.abs(valorP - valorQ) + 1) * 1000;
+    private static double calculateNeighborCost(int[][] imageData, Point p, Point q) {
+        Color pPixel = new Color(imageData[(int) p.getX()][(int) p.getY()]);
+        Color qPixel = new Color(imageData[(int) q.getX()][(int) q.getY()]);
+        int rDiff = Math.abs(pPixel.getRed() - qPixel.getRed());
+        int gDiff = Math.abs(pPixel.getGreen() - qPixel.getGreen());
+        int bDiff = Math.abs(pPixel.getBlue() - qPixel.getBlue());
+        return (rDiff + gDiff + bDiff) * 1000;
     }
 
-    private static List<Point> listarVizinhos4N(int[][] dados, Point p) {
+    private static List<Point> list4Neighbors(int[][] dados, Point p) {
         List<Point> lista = new ArrayList<Point>();
         int x = (int) p.getX();
         int y = (int) p.getY();
@@ -113,8 +120,8 @@ public class AStar {
         return lista;
     }
 
-    private static List<Point> listarVizinhos8N(int[][] dados, Point p) {
-        List<Point> lista = listarVizinhos4N(dados, p);
+    private static List<Point> list8Neighbors(int[][] dados, Point p) {
+        List<Point> lista = list4Neighbors(dados, p);
         int x = (int) p.getX();
         int y = (int) p.getY();
         if (x + 1 < dados.length && y + 1 < dados[0].length) {
@@ -132,7 +139,7 @@ public class AStar {
         return lista;
     }
 
-    private static double calcularCustoHeuristico(Point p, Point q) {
+    private static double calculateHeuristicCost(Point p, Point q) {
         return Math.sqrt(Math.pow(p.getX() - q.getX(), 2) + Math.pow(p.getY() - q.getY(), 2));
     }
 
