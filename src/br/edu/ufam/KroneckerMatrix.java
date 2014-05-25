@@ -2,7 +2,7 @@ package br.edu.ufam;
 
 public class KroneckerMatrix {
 
-    public static void product(double[][] a, double[][] b, double[][] out) {
+    public static void product(int[][] a, int[][] b, int[][] out) {
         final int m = a.length;
         final int n = a[0].length;
         final int p = b.length;
@@ -20,10 +20,9 @@ public class KroneckerMatrix {
 
                 for (int k = 0; k < p; k++) {
                     for (int l = 0; l < q; l++) {
-                        out[iOffset + k][jOffset + l] = aij * b[k][l];
+                        out[iOffset + k][jOffset + l] = (int)(aij * b[k][l]);
                     }
                 }
-
             }
         }
     }
