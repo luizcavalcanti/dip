@@ -1,4 +1,6 @@
 bin
+output/*.png
+output/*.jpg
 .classpath
 .project
 .settings
