@@ -67,8 +67,8 @@ public class Main {
         ImageIOUtils.savePNGImage(imgRegion, "output/boundaries");
 
         // Zoom 0.5x utilizando interpolação linear
-        int[][] imgLandBW2 = ImageIOUtils.getImageData(ImageIOUtils.loadImageFromFile("landscape.png"));
-        int[][] resizedImage = ImageTransformations.resize(imgLandBW2, 640, 400);
+        int[][] imgLand = ImageIOUtils.getImageData(ImageIOUtils.loadImageFromFile("landscape.png"));
+        int[][] resizedImage = ImageTransformations.resize(imgLand, 640, 400);
         ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(resizedImage), "output/landscape-zoomed_out");
 
         // Zoom 1.5x utilizando interpolação linear
@@ -99,12 +99,18 @@ public class Main {
         }
         ImageIOUtils.savePNGImage(imgRegionLandBW, "output/landscape-boundaries_bw");
 
+        int[][] clipRobot = ImageTransformations.clip(imgNoCentroids, 75, 60, 40, 40);
+        clipRobot = ImageTransformations.resize(clipRobot, 90, 90);
+        ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(clipRobot), "output/robot_close_up");
+
+        // Clip de imagem
+        int[][] clip = ImageTransformations.clip(imgLandBW, 430, 370, 400, 170);
+        ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(clip), "output/clip");
+
+        // Extrair regiões da imagem
         extractAllRegions(imgDataLandscape, 30, "output/land_region_");
 
         // TODO aplicar janela de interesse (produto de kronecher)
-        int[][] imgInterestRegion = applyInterestWindow(ImageIOUtils.cloneImageData(imgNoCentroids));
-        ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(imgInterestRegion), "interest_window");
-
     }
 
     private static void extractAllRegions(int[][] image, int threshold, String baseFileName) throws IOException {
@@ -139,15 +145,6 @@ public class Main {
             }
         }
         return output;
-    }
-
-    private static int[][] applyInterestWindow(int[][] image) {
-        int m = image.length;
-        int n = image[0].length;
-        int[][] out = new int[m * m][n * n];
-        int[][] mask = new int[m][n];
-        KroneckerMatrix.product(image, mask, out);
-        return out;
     }
 
     private static void eraseCentroid(int[][] img, int x, int y) {

@@ -43,4 +43,14 @@ public class ImageTransformations {
         return temp;
     }
 
+    public static int[][] clip(int[][] image, int x, int y, int width, int height) {
+        int[][] output = new int[width][height];
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                output[i][j] = image[x + i][y + j];
+            }
+        }
+        return output;
+    }
+
 }
