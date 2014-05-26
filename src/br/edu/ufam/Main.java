@@ -110,7 +110,20 @@ public class Main {
         // Extrair regiões da imagem
         extractAllRegions(imgDataLandscape, 30, "output/land_region_");
 
-        // TODO aplicar janela de interesse (produto de kronecher)
+        // Aplicar janela de interesse
+        int[][] mask = getVisibleMask(imgNoCentroids, 75, 60, 40, 40);
+        int[][] regionOfInterest = ImageTransformations.regionOfInterest(imgNoCentroids, mask);
+        ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(regionOfInterest), "output/regionOfInterest");
+    }
+
+    private static int[][] getVisibleMask(int[][] image, int x, int y, int width, int height) {
+        int[][] mask = new int[image.length][image[0].length];
+        for (int i = x; i < x + width; i++) {
+            for (int j = y; j < y + height; j++) {
+                mask[i][j] = 1;
+            }
+        }
+        return mask;
     }
 
     private static void extractAllRegions(int[][] image, int threshold, String baseFileName) throws IOException {

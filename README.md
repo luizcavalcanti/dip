@@ -14,4 +14,4 @@ List of features implemented so far:
 * Image scaling (linear interpolation)
 * Histogram equalization
 * Search for connected regions
-* Region of interest with Kronecker product (not really working great)
+* Region of interest

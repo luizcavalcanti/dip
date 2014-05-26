@@ -19,17 +19,17 @@ public class ImageTransformations {
     }
 
     public static int[][] convertToNegative(int[][] dados) {
-        int[][] negativo = new int[dados.length][dados[0].length];
-        for (int x = 0; x < negativo.length; x++) {
-            for (int y = 0; y < negativo[x].length; y++) {
-                negativo[x][y] = Color.WHITE.getRGB() - dados[x][y];
+        int[][] negative = new int[dados.length][dados[0].length];
+        for (int x = 0; x < negative.length; x++) {
+            for (int y = 0; y < negative[x].length; y++) {
+                negative[x][y] = Color.WHITE.getRGB() - dados[x][y];
             }
         }
-        return negativo;
+        return negative;
     }
 
     public static int[][] resize(int[][] image, int newWidth, int newHeight) {
-        int[][] temp = new int[newWidth][newHeight];
+        int[][] output = new int[newWidth][newHeight];
         double xRatio = image.length / (double) newWidth;
         double yRatio = image[0].length / (double) newHeight;
         int x, y;
@@ -37,10 +37,10 @@ public class ImageTransformations {
             for (int j = 0; j < newHeight; j++) {
                 x = (int) Math.floor(i * xRatio);
                 y = (int) Math.floor(j * yRatio);
-                temp[i][j] = image[x][y];
+                output[i][j] = image[x][y];
             }
         }
-        return temp;
+        return output;
     }
 
     public static int[][] clip(int[][] image, int x, int y, int width, int height) {
@@ -48,6 +48,18 @@ public class ImageTransformations {
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 output[i][j] = image[x + i][y + j];
+            }
+        }
+        return output;
+    }
+
+    public static int[][] regionOfInterest(int[][] image, int[][] mask) {
+        int width = image.length;
+        int height = image[0].length;
+        int[][] output = new int[width][height];
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                output[x][y] = image[x][y] * mask[x][y];
             }
         }
         return output;
