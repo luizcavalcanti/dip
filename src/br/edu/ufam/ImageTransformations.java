@@ -65,4 +65,47 @@ public class ImageTransformations {
         return output;
     }
 
+    private static int max(int[][] image) {
+        int width = image.length;
+        int height = image[0].length;
+        int max = 0;
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                Color c = new Color(image[x][y]);
+                int r = c.getRed();
+                int g = c.getGreen();
+                int b = c.getBlue();
+                int gray = r + g + b / 3;
+                max = Math.max(max, gray);
+            }
+        }
+        return max;
+    }
+
+    public static int[][] gammaFilter(int[][] image, double gamma) {
+        int width = image.length;
+        int height = image[0].length;
+        int[][] output = new int[width][height];
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                Color c = new Color(image[x][y]);
+                int r = (int) (Math.pow(c.getRed(), gamma));
+                int g = (int) (Math.pow(c.getGreen(), gamma));
+                int b = (int) (Math.pow(c.getBlue(), gamma));
+                output[x][y] = new Color(r, g, b).getRGB();
+            }
+        }
+        int con = 255 / max(output);
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                Color c = new Color(output[x][y]);
+                int r = (int) Math.min(255, c.getRed() * con);
+                int g = (int) Math.min(255, c.getGreen() * con);
+                int b = (int) Math.min(255, c.getBlue() * con);
+                output[x][y] = new Color(r, g, b).getRGB();
+            }
+        }
+        return output;
+    }
+
 }

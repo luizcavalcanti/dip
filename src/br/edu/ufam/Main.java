@@ -114,6 +114,16 @@ public class Main {
         int[][] mask = getVisibleMask(imgNoCentroids, 75, 60, 40, 40);
         int[][] regionOfInterest = ImageTransformations.regionOfInterest(imgNoCentroids, mask);
         ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(regionOfInterest), "output/regionOfInterest");
+
+        // Aplicação de gamma nas imagens
+        BufferedImage imgLandGamma = ImageIOUtils.loadImageFromFile("landscape.png");
+        int[][] data = ImageTransformations.convertToGrayscale(ImageIOUtils.getImageData(imgLandGamma));
+        int[][] filtro = ImageTransformations.gammaFilter(data, 0.6);
+        ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(filtro), "output/gamma06");
+        filtro = ImageTransformations.gammaFilter(data, 0.4);
+        ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(filtro), "output/gamma04");
+        filtro = ImageTransformations.gammaFilter(data, 0.3);
+        ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(filtro), "output/gamma03");
     }
 
     private static int[][] getVisibleMask(int[][] image, int x, int y, int width, int height) {
