@@ -67,7 +67,7 @@ public class Main {
         ImageIOUtils.savePNGImage(imgRegion, "output/boundaries");
 
         // Zoom 0.5x utilizando interpolação linear
-        int[][] imgLand = ImageIOUtils.getImageData(ImageIOUtils.loadImageFromFile("landscape.png"));
+        int[][] imgLand = ImageIOUtils.getImageData(ImageIOUtils.loadImageFromFile("landscape.jpg"));
         int[][] resizedImage = ImageTransformations.resize(imgLand, 640, 400);
         ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(resizedImage), "output/landscape-zoomed_out");
 
@@ -77,7 +77,7 @@ public class Main {
         ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(resizedImage2), "output/robot-zoomed_in");
 
         // Região de imagem colorida
-        int[][] imgDataLandscape = ImageIOUtils.getImageData(ImageIOUtils.loadImageFromFile("landscape.png"));
+        int[][] imgDataLandscape = ImageIOUtils.getImageData(ImageIOUtils.loadImageFromFile("landscape.jpg"));
         internalRegion = ConnectedRegionSearch.extractConnectedRegion(imgDataLandscape, centroids.get(0), 20);
         BufferedImage imgRegionLand = ImageIOUtils.getImageFromData(imgDataLandscape);
         g = imgRegionLand.getGraphics();
@@ -89,7 +89,7 @@ public class Main {
 
         // Região de imagem tons-de-cinza
         int[][] imgLandBW = ImageTransformations.convertToGrayscale(ImageIOUtils.getImageData(ImageIOUtils
-                .loadImageFromFile("landscape.png")));
+                .loadImageFromFile("landscape.jpg")));
         internalRegion = ConnectedRegionSearch.extractConnectedRegion(imgLandBW, centroids.get(0), 20);
         BufferedImage imgRegionLandBW = ImageIOUtils.getImageFromData(imgLandBW);
         g = imgRegionLandBW.getGraphics();
@@ -116,7 +116,7 @@ public class Main {
         ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(regionOfInterest), "output/regionOfInterest");
 
         // Aplicação de gamma nas imagens
-        BufferedImage imgLandGamma = ImageIOUtils.loadImageFromFile("landscape.png");
+        BufferedImage imgLandGamma = ImageIOUtils.loadImageFromFile("landscape.jpg");
         int[][] data = ImageTransformations.convertToGrayscale(ImageIOUtils.getImageData(imgLandGamma));
         int[][] filtro = ImageTransformations.gammaFilter(data, 0.6);
         ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(filtro), "output/gamma06");
