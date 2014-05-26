@@ -10,6 +10,7 @@ List of features implemented so far:
 * Negative of an image
 * Minimum path with 4-neighbor search
 * Minimum path with 8-neighbor search
+* Image clipping
 * Image scaling (linear interpolation)
 * Histogram equalization
 * Search for connected regions
