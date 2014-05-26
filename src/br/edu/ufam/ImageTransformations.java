@@ -32,8 +32,6 @@ public class ImageTransformations {
         int[][] temp = new int[newWidth][newHeight];
         double xRatio = image.length / (double) newWidth;
         double yRatio = image[0].length / (double) newHeight;
-        System.out.println(xRatio);
-        System.out.println(yRatio);
         int x, y;
         for (int i = 0; i < newWidth; i++) {
             for (int j = 0; j < newHeight; j++) {
