@@ -65,10 +65,6 @@ public class Main {
         }
         ImageIOUtils.savePNGImage(imgRegion, "output/boundaries");
 
-        // TODO aplicar janela de interesse (produto de kronecher)
-        int[][] imgInterestRegion = applyInterestWindow(ImageIOUtils.cloneImageData(imgNoCentroids));
-        ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(imgInterestRegion), "interest_window");
-
         // Zoom 0.5x utilizando interpolação linear
         int[][] imgLandBW2 = ImageIOUtils.getImageData(ImageIOUtils.loadImageFromFile("landscape.png"));
         int[][] resizedImage = ImageTransformations.resize(imgLandBW2, 640, 400);
@@ -101,11 +97,18 @@ public class Main {
             g.fillRect((int) p.getX(), (int) p.getY(), 1, 1);
         }
         ImageIOUtils.savePNGImage(imgRegionLandBW, "output/landscape-boundaries_bw");
+
+        // TODO aplicar janela de interesse (produto de kronecher)
+        int[][] imgInterestRegion = applyInterestWindow(ImageIOUtils.cloneImageData(imgNoCentroids));
+        ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(imgInterestRegion), "interest_window");
+
     }
 
     private static int[][] applyInterestWindow(int[][] image) {
-        int[][] out = new int[image.length][image[0].length];
-        int[][] mask = new int[image.length][image[0].length];
+        int m = image.length;
+        int n = image[0].length;
+        int[][] out = new int[m * m][n * n];
+        int[][] mask = new int[m][n];
         KroneckerMatrix.product(image, mask, out);
         return out;
     }
