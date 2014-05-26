@@ -6,6 +6,7 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -56,7 +57,7 @@ public class Main {
         ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(dadosEqualizado), "output/equalized");
 
         // Get the connected region starting from the first centroid
-        Set<Point> internalRegion = ConnectedRegionSearch.extractConnectedRegion(imgNoCentroids, centroids.get(0));
+        Set<Point> internalRegion = ConnectedRegionSearch.extractConnectedRegion(imgNoCentroids, centroids.get(0), 20);
         BufferedImage imgRegion = ImageIOUtils.getImageFromData(imgNoCentroids);
         Graphics g = imgRegion.getGraphics();
         g.setColor(Color.YELLOW);
@@ -84,7 +85,7 @@ public class Main {
         for (Point p : internalRegion) {
             g.fillRect((int) p.getX(), (int) p.getY(), 1, 1);
         }
-        ImageIOUtils.savePNGImage(imgRegionLand, "output/landscape-boundaries_bw");
+        ImageIOUtils.savePNGImage(imgRegionLand, "output/landscape-boundaries");
 
         // Região de imagem tons-de-cinza
         int[][] imgLandBW = ImageTransformations.convertToGrayscale(ImageIOUtils.getImageData(ImageIOUtils
@@ -98,10 +99,46 @@ public class Main {
         }
         ImageIOUtils.savePNGImage(imgRegionLandBW, "output/landscape-boundaries_bw");
 
+        extractAllRegions(imgDataLandscape, 30, "output/land_region_");
+
         // TODO aplicar janela de interesse (produto de kronecher)
         int[][] imgInterestRegion = applyInterestWindow(ImageIOUtils.cloneImageData(imgNoCentroids));
         ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(imgInterestRegion), "interest_window");
 
+    }
+
+    private static void extractAllRegions(int[][] image, int threshold, String baseFileName) throws IOException {
+        Set<Point> foundPixels = new HashSet<Point>();
+        int width = image.length;
+        int height = image[0].length;
+        int regionCount = 0;
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                Point current = new Point(x, y);
+                if (foundPixels.contains(current))
+                    continue;
+                Set<Point> points = ConnectedRegionSearch.extractConnectedRegion(image, current, threshold);
+                foundPixels.addAll(points);
+                if (points.size() > 100) {
+                    int[][] output = createWhiteImage(width, height);
+                    for (Point p : points) {
+                        output[(int) p.getX()][(int) p.getY()] = image[x][y];
+                    }
+                    ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(output), baseFileName + regionCount);
+                    regionCount++;
+                }
+            }
+        }
+    }
+
+    private static int[][] createWhiteImage(int width, int height) {
+        int[][] output = new int[width][height];
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                output[i][j] = new Color(255, 255, 255).getRGB();
+            }
+        }
+        return output;
     }
 
     private static int[][] applyInterestWindow(int[][] image) {
