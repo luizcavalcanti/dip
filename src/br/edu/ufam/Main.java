@@ -77,7 +77,7 @@ public class Main {
 
         // Região de imagem colorida
         int[][] imgDataLandscape = ImageIOUtils.getImageData(ImageIOUtils.loadImageFromFile("landscape.png"));
-        internalRegion = ConnectedRegionSearch.extractConnectedRegion(imgDataLandscape, centroids.get(0));
+        internalRegion = ConnectedRegionSearch.extractConnectedRegion(imgDataLandscape, centroids.get(0), 20);
         BufferedImage imgRegionLand = ImageIOUtils.getImageFromData(imgDataLandscape);
         g = imgRegionLand.getGraphics();
         g.setColor(Color.YELLOW);
@@ -89,7 +89,7 @@ public class Main {
         // Região de imagem tons-de-cinza
         int[][] imgLandBW = ImageTransformations.convertToGrayscale(ImageIOUtils.getImageData(ImageIOUtils
                 .loadImageFromFile("landscape.png")));
-        internalRegion = ConnectedRegionSearch.extractConnectedRegion(imgLandBW, centroids.get(0));
+        internalRegion = ConnectedRegionSearch.extractConnectedRegion(imgLandBW, centroids.get(0), 20);
         BufferedImage imgRegionLandBW = ImageIOUtils.getImageFromData(imgLandBW);
         g = imgRegionLandBW.getGraphics();
         g.setColor(Color.YELLOW);

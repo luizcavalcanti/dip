@@ -7,11 +7,11 @@ import java.util.Set;
 
 public class ConnectedRegionSearch {
 
-    public static Set<Point> extractConnectedRegion(int[][] imageData, Point origin) {
-        return searchForConnectedNeighbors(imageData, origin);
+    public static Set<Point> extractConnectedRegion(int[][] imageData, Point origin, int threshold) {
+        return searchForConnectedNeighbors(imageData, origin, threshold);
     }
 
-    private static Set<Point> searchForConnectedNeighbors(int[][] img, Point startPoint) {
+    private static Set<Point> searchForConnectedNeighbors(int[][] img, Point startPoint, int threshold) {
         Set<Point> connectedRegion = new HashSet<Point>();
         Set<Point> open = new HashSet<Point>();
         Set<Point> closed = new HashSet<Point>();
@@ -33,7 +33,8 @@ public class ConnectedRegionSearch {
 
             if (x > 0) {
                 Point left = new Point(x - 1, y);
-                if (closeEnough(currentPixel, img[x - 1][y]) && !open.contains(left) && !closed.contains(left)) {
+                if (closeEnough(currentPixel, img[x - 1][y], threshold) && !open.contains(left)
+                        && !closed.contains(left)) {
                     open.add(left);
                     connectedRegion.add(left);
                 }
@@ -41,7 +42,7 @@ public class ConnectedRegionSearch {
 
             if (y > 0) {
                 Point up = new Point(x, y - 1);
-                if (closeEnough(currentPixel, img[x][y - 1]) && !open.contains(up) && !closed.contains(up)) {
+                if (closeEnough(currentPixel, img[x][y - 1], threshold) && !open.contains(up) && !closed.contains(up)) {
                     open.add(up);
                     connectedRegion.add(up);
                 }
@@ -49,7 +50,8 @@ public class ConnectedRegionSearch {
 
             if (x + 1 < img.length) {
                 Point right = new Point(x + 1, y);
-                if (closeEnough(currentPixel, img[x + 1][y]) && !open.contains(right) && !closed.contains(right)) {
+                if (closeEnough(currentPixel, img[x + 1][y], threshold) && !open.contains(right)
+                        && !closed.contains(right)) {
                     open.add(right);
                     connectedRegion.add(right);
                 }
@@ -57,7 +59,8 @@ public class ConnectedRegionSearch {
 
             if (y + 1 < img[0].length) {
                 Point down = new Point(x, y + 1);
-                if (closeEnough(currentPixel, img[x][y + 1]) && !open.contains(down) && !closed.contains(down)) {
+                if (closeEnough(currentPixel, img[x][y + 1], threshold) && !open.contains(down)
+                        && !closed.contains(down)) {
                     open.add(down);
                     connectedRegion.add(down);
                 }
@@ -66,12 +69,12 @@ public class ConnectedRegionSearch {
         return connectedRegion;
     }
 
-    private static boolean closeEnough(int aPixel, int bPixel) {
+    private static boolean closeEnough(int aPixel, int bPixel, int threshold) {
         Color aColor = new Color(aPixel);
         Color bColor = new Color(bPixel);
         int rDiff = Math.abs(aColor.getRed() - bColor.getRed());
         int gDiff = Math.abs(aColor.getGreen() - bColor.getGreen());
         int bDiff = Math.abs(aColor.getBlue() - bColor.getBlue());
-        return (rDiff + gDiff + bDiff) < 20;
+        return (rDiff + gDiff + bDiff) <= threshold;
     }
 }
