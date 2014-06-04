@@ -28,6 +28,12 @@ public class ImageTransformations {
         return negative;
     }
 
+    public static int[][] resize(int[][] image, double zoomFactor) {
+        int newWidth = (int) (image.length * zoomFactor);
+        int newHeight = (int) (image[0].length * zoomFactor);
+        return resize(image, newWidth, newHeight);
+    }
+
     public static int[][] resize(int[][] image, int newWidth, int newHeight) {
         int[][] output = new int[newWidth][newHeight];
         double xRatio = image.length / (double) newWidth;
