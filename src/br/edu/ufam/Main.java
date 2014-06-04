@@ -1,129 +1,158 @@
 package br.edu.ufam;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import br.edu.ufam.pdi.filters.BoxBlur;
+
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        BufferedImage imgRobot = ImageIOUtils.loadImageFromFile("robot.jpg");
-
-        // Criação de imagem negativa
-        int[][] imgDataGrayscale = ImageTransformations.convertToGrayscale(ImageIOUtils.getImageData(imgRobot));
-        int[][] imgNegative = ImageTransformations.convertToNegative(imgDataGrayscale);
-        ImageIOUtils.saveJPEGImage(ImageIOUtils.getImageFromData(imgNegative), "output/negative");
-
-        // Encontra os dois centroides da imagem
-        List<Point> centroids = findCentroids(imgNegative);
-        if (centroids.size() != 2) {
-            System.err.println("Could not find both centroids in image");
-            System.exit(1);
-        }
-        int[][] imgNoCentroids = ImageIOUtils.cloneImageData(imgNegative);
-        for (Point p : centroids) {
-            eraseCentroid(imgNoCentroids, (int) p.getX(), (int) p.getY());
-        }
-        ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(imgNoCentroids), "output/negative-no_centroid");
-
-        // Busca caminho mínimo com 4 vizinhos
-        List<Point> path4N = AStar.get4NShortestPath(imgNoCentroids, centroids.get(0), centroids.get(1));
-        int[][] data4N = ImageIOUtils.cloneImageData(imgNoCentroids);
-        for (Point p : path4N) {
-            int x = (int) p.getX();
-            int y = (int) p.getY();
-            data4N[x][y] = 255;
-        }
-        ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(data4N), "output/4Npath");
-
-        // Busca caminho mínimo com 8 vizinhos
-        List<Point> path8N = AStar.get8NShortestPath(imgNoCentroids, centroids.get(0), centroids.get(1));
-        int[][] data8N = ImageIOUtils.cloneImageData(imgNoCentroids);
-        for (Point p : path8N) {
-            int x = (int) p.getX();
-            int y = (int) p.getY();
-            data8N[x][y] = 255;
-        }
-        ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(data8N), "output/8Npath");
-
-        // Negative image => histogram equalization
-        int[][] dadosEqualizado = HistogramEqualization.equalizeHistogram(imgNegative, 255, 0, 255);
-        ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(dadosEqualizado), "output/equalized");
-
-        // Get the connected region starting from the first centroid
-        Set<Point> internalRegion = ConnectedRegionSearch.extractConnectedRegion(imgNoCentroids, centroids.get(0), 20);
-        BufferedImage imgRegion = ImageIOUtils.getImageFromData(imgNoCentroids);
-        Graphics g = imgRegion.getGraphics();
-        g.setColor(Color.YELLOW);
-        for (Point p : internalRegion) {
-            g.fillRect((int) p.getX(), (int) p.getY(), 1, 1);
-        }
-        ImageIOUtils.savePNGImage(imgRegion, "output/boundaries");
-
-        // Zoom 0.5x utilizando interpolação linear
-        int[][] imgLand = ImageIOUtils.getImageData(ImageIOUtils.loadImageFromFile("landscape.jpg"));
-        int[][] resizedImage = ImageTransformations.resize(imgLand, 640, 400);
-        ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(resizedImage), "output/landscape-zoomed_out");
-
-        // Zoom 1.5x utilizando interpolação linear
-        int[][] imgRobotZoom = ImageIOUtils.getImageData(ImageIOUtils.loadImageFromFile("robot.jpg"));
-        int[][] resizedImage2 = ImageTransformations.resize(imgRobotZoom, 450, 354);
-        ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(resizedImage2), "output/robot-zoomed_in");
-
-        // Região de imagem colorida
-        int[][] imgDataLandscape = ImageIOUtils.getImageData(ImageIOUtils.loadImageFromFile("landscape.jpg"));
-        internalRegion = ConnectedRegionSearch.extractConnectedRegion(imgDataLandscape, centroids.get(0), 20);
-        BufferedImage imgRegionLand = ImageIOUtils.getImageFromData(imgDataLandscape);
-        g = imgRegionLand.getGraphics();
-        g.setColor(Color.YELLOW);
-        for (Point p : internalRegion) {
-            g.fillRect((int) p.getX(), (int) p.getY(), 1, 1);
-        }
-        ImageIOUtils.savePNGImage(imgRegionLand, "output/landscape-boundaries");
-
-        // Região de imagem tons-de-cinza
-        int[][] imgLandBW = ImageTransformations.convertToGrayscale(ImageIOUtils.getImageData(ImageIOUtils
-                .loadImageFromFile("landscape.jpg")));
-        internalRegion = ConnectedRegionSearch.extractConnectedRegion(imgLandBW, centroids.get(0), 20);
-        BufferedImage imgRegionLandBW = ImageIOUtils.getImageFromData(imgLandBW);
-        g = imgRegionLandBW.getGraphics();
-        g.setColor(Color.YELLOW);
-        for (Point p : internalRegion) {
-            g.fillRect((int) p.getX(), (int) p.getY(), 1, 1);
-        }
-        ImageIOUtils.savePNGImage(imgRegionLandBW, "output/landscape-boundaries_bw");
-
-        int[][] clipRobot = ImageTransformations.clip(imgNoCentroids, 75, 60, 40, 40);
-        clipRobot = ImageTransformations.resize(clipRobot, 90, 90);
-        ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(clipRobot), "output/robot_close_up");
-
-        // Clip de imagem
-        int[][] clip = ImageTransformations.clip(imgLandBW, 430, 370, 400, 170);
-        ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(clip), "output/clip");
-
+        // BufferedImage imgRobot = ImageIOUtils.loadImageFromFile("robot.jpg");
+        //
+        // // Criação de imagem negativa
+        // int[][] imgDataGrayscale = ImageTransformations.convertToGrayscale(ImageIOUtils.getImageData(imgRobot));
+        // int[][] imgNegative = ImageTransformations.convertToNegative(imgDataGrayscale);
+        // ImageIOUtils.saveJPEGImage(ImageIOUtils.getImageFromData(imgNegative), "output/negative");
+        //
+        // // Encontra os dois centroides da imagem
+        // List<Point> centroids = findCentroids(imgNegative);
+        // if (centroids.size() != 2) {
+        // System.err.println("Could not find both centroids in image");
+        // System.exit(1);
+        // }
+        // int[][] imgNoCentroids = ImageIOUtils.cloneImageData(imgNegative);
+        // for (Point p : centroids) {
+        // eraseCentroid(imgNoCentroids, (int) p.getX(), (int) p.getY());
+        // }
+        // ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(imgNoCentroids), "output/negative-no_centroid");
+        //
+        // // Busca caminho mínimo com 4 vizinhos
+        // List<Point> path4N = AStar.get4NShortestPath(imgNoCentroids, centroids.get(0), centroids.get(1));
+        // int[][] data4N = ImageIOUtils.cloneImageData(imgNoCentroids);
+        // for (Point p : path4N) {
+        // int x = (int) p.getX();
+        // int y = (int) p.getY();
+        // data4N[x][y] = 255;
+        // }
+        // ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(data4N), "output/4Npath");
+        //
+        // // Busca caminho mínimo com 8 vizinhos
+        // List<Point> path8N = AStar.get8NShortestPath(imgNoCentroids, centroids.get(0), centroids.get(1));
+        // int[][] data8N = ImageIOUtils.cloneImageData(imgNoCentroids);
+        // for (Point p : path8N) {
+        // int x = (int) p.getX();
+        // int y = (int) p.getY();
+        // data8N[x][y] = 255;
+        // }
+        // ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(data8N), "output/8Npath");
+        //
+        // // Negative image => histogram equalization
+        // int[][] dadosEqualizado = HistogramEqualization.equalizeHistogram(imgNegative, 255, 0, 255);
+        // ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(dadosEqualizado), "output/equalized");
+        //
+        // // Get the connected region starting from the first centroid
+        // Set<Point> internalRegion = ConnectedRegionSearch.extractConnectedRegion(imgNoCentroids, centroids.get(0),
+        // 20);
+        // BufferedImage imgRegion = ImageIOUtils.getImageFromData(imgNoCentroids);
+        // Graphics g = imgRegion.getGraphics();
+        // g.setColor(Color.YELLOW);
+        // for (Point p : internalRegion) {
+        // g.fillRect((int) p.getX(), (int) p.getY(), 1, 1);
+        // }
+        // ImageIOUtils.savePNGImage(imgRegion, "output/boundaries");
+        //
+        // // Zoom 0.5x utilizando interpolação linear
+        // int[][] imgLand = ImageIOUtils.getImageData(ImageIOUtils.loadImageFromFile("landscape.jpg"));
+        // int[][] resizedImage = ImageTransformations.resize(imgLand, 640, 400);
+        // ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(resizedImage), "output/landscape-zoomed_out");
+        //
+        // // Zoom 1.5x utilizando interpolação linear
+        // int[][] imgRobotZoom = ImageIOUtils.getImageData(ImageIOUtils.loadImageFromFile("robot.jpg"));
+        // int[][] resizedImage2 = ImageTransformations.resize(imgRobotZoom, 450, 354);
+        // ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(resizedImage2), "output/robot-zoomed_in");
+        //
+        // // Região de imagem colorida
+        // int[][] imgDataLandscape = ImageIOUtils.getImageData(ImageIOUtils.loadImageFromFile("landscape.jpg"));
+        // internalRegion = ConnectedRegionSearch.extractConnectedRegion(imgDataLandscape, centroids.get(0), 20);
+        // BufferedImage imgRegionLand = ImageIOUtils.getImageFromData(imgDataLandscape);
+        // g = imgRegionLand.getGraphics();
+        // g.setColor(Color.YELLOW);
+        // for (Point p : internalRegion) {
+        // g.fillRect((int) p.getX(), (int) p.getY(), 1, 1);
+        // }
+        // ImageIOUtils.savePNGImage(imgRegionLand, "output/landscape-boundaries");
+        //
+        // // Região de imagem tons-de-cinza
+        // int[][] imgLandBW = ImageTransformations.convertToGrayscale(ImageIOUtils.getImageData(ImageIOUtils
+        // .loadImageFromFile("landscape.jpg")));
+        // internalRegion = ConnectedRegionSearch.extractConnectedRegion(imgLandBW, centroids.get(0), 20);
+        // BufferedImage imgRegionLandBW = ImageIOUtils.getImageFromData(imgLandBW);
+        // g = imgRegionLandBW.getGraphics();
+        // g.setColor(Color.YELLOW);
+        // for (Point p : internalRegion) {
+        // g.fillRect((int) p.getX(), (int) p.getY(), 1, 1);
+        // }
+        // ImageIOUtils.savePNGImage(imgRegionLandBW, "output/landscape-boundaries_bw");
+        //
+        // int[][] clipRobot = ImageTransformations.clip(imgNoCentroids, 75, 60, 40, 40);
+        // clipRobot = ImageTransformations.resize(clipRobot, 90, 90);
+        // ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(clipRobot), "output/robot_close_up");
+        //
+        // // Clip de imagem
+        // int[][] clip = ImageTransformations.clip(imgLandBW, 430, 370, 400, 170);
+        // ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(clip), "output/clip");
+        //
         // Extrair regiões da imagem
-        extractAllRegions(imgDataLandscape, 30, "output/land_region_");
+        // imgDataLandscape = ImageIOUtils.getImageData(ImageIOUtils.loadImageFromFile("robot.jpg"));
+        int[][] imgForest = ImageIOUtils.getImageData(ImageIOUtils.loadImageFromFile("0005.jpg"));
+        // for (int i = 0; i < 5; i++) {
+        // imgForest = HistogramEqualization.equalizeHistogram(imgForest, 64, 0, 255);
+        // ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(imgForest), "output/hist_" + i);
+        // }
 
-        // Aplicar janela de interesse
-        int[][] mask = getVisibleMask(imgNoCentroids, 75, 60, 40, 40);
-        int[][] regionOfInterest = ImageTransformations.regionOfInterest(imgNoCentroids, mask);
-        ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(regionOfInterest), "output/regionOfInterest");
+        int[][] gauss = BoxBlur.applyFilter(imgForest);
+        for (int i = 0; i < 30; i++) {
+            gauss = BoxBlur.applyFilter(gauss);
+            ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(gauss), "output/gauss_" + i);
+        }
+        // imgForest = ImageTransformations.convertToGrayscale(imgForest);
+        // imgForest = HistogramEqualization.equalizeHistogram(imgForest, 32, 0, 255);
+
+        // long start = System.currentTimeMillis();
+        // extractAllRegions(imgForest, 30, "output/land_region_");
+        // long end = System.currentTimeMillis();
+        // System.out.println("time: " + ((end - start) / 1000));
+
+        // // Aplicar janela de interesse
+        // int[][] mask = getVisibleMask(imgNoCentroids, 75, 60, 40, 40);
+        // int[][] regionOfInterest = ImageTransformations.regionOfInterest(imgNoCentroids, mask);
+        // ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(regionOfInterest), "output/regionOfInterest");
 
         // Aplicação de gamma nas imagens
-        BufferedImage imgLandGamma = ImageIOUtils.loadImageFromFile("landscape.jpg");
-        int[][] data = ImageTransformations.convertToGrayscale(ImageIOUtils.getImageData(imgLandGamma));
-        int[][] filtro = ImageTransformations.gammaFilter(data, 0.6);
-        ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(filtro), "output/gamma06");
-        filtro = ImageTransformations.gammaFilter(data, 0.4);
-        ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(filtro), "output/gamma04");
-        filtro = ImageTransformations.gammaFilter(data, 0.3);
-        ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(filtro), "output/gamma03");
+        // BufferedImage imgLandGamma = ImageIOUtils.loadImageFromFile("landscape.jpg");
+        // int[][] data = ImageTransformations.convertToGrayscale(ImageIOUtils.getImageData(imgLandGamma));
+        // ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(data), "output/original");
+        // int[][] filtro = ImageTransformations.gammaFilter(data, 0.8);
+        // ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(filtro), "output/gamma08");
+        // filtro = ImageTransformations.gammaFilter(data, 0.6);
+        // ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(filtro), "output/gamma06");
+        // filtro = ImageTransformations.gammaFilter(data, 0.4);
+        // ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(filtro), "output/gamma04");
+        // filtro = ImageTransformations.gammaFilter(data, 0.3);
+        // ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(filtro), "output/gamma03");
+        // filtro = ImageTransformations.gammaFilter(data, 0.2);
+        // ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(filtro), "output/gamma02");
+        // filtro = ImageTransformations.gammaFilter(data, 0.1);
+        // ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(filtro), "output/gamma01");
+        //
+        // filtro = ImageTransformations.gammaFilter(data, 1.2);
+        // ImageIOUtils.savePNGImage(ImageIOUtils.getImageFromData(filtro), "output/gamma102");
     }
 
     private static int[][] getVisibleMask(int[][] image, int x, int y, int width, int height) {
