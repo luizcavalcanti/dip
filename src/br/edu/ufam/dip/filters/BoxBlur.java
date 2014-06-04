@@ -1,4 +1,4 @@
-package br.edu.ufam.pdi.filters;
+package br.edu.ufam.dip.filters;
 
 import java.awt.Color;
 
