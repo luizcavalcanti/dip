@@ -5,3 +5,4 @@ output/*.jpg
 .project
 .settings
 .DS_Store
+*.jar
