@@ -1,0 +1,17 @@
+<project name="DigitalImageProcessingLearnings" default="build">
+
+    <target name="clean">
+        <delete dir="bin" />
+        <delete>
+            <fileset dir="." includes="*.jar"/>
+        </delete>
+    </target>
+
+    <target name="build" depends="clean">
+        <mkdir dir="bin" />
+        <javac srcdir="src" destdir="bin" includeantruntime="false" />
+        <jar destfile="diplearnings.jar" basedir="bin" />
+    </target>
+
+
+</project>
