@@ -9,7 +9,7 @@ import javax.imageio.ImageIO;
 
 import br.edu.ufam.ImageIOUtils;
 
-public class Thresholding {
+public class SimpleThresholding {
 
     public static void main(String[] args) throws IOException {
         if (args.length != 3) {
