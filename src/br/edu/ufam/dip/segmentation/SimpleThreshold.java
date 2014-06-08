@@ -9,14 +9,14 @@ import javax.imageio.ImageIO;
 
 import br.edu.ufam.ImageIOUtils;
 
-public class SimpleThresholding {
+public class SimpleThreshold {
 
     public static void main(String[] args) throws IOException {
         if (args.length != 3) {
-            System.err.println("Usage: Thresholding <source-image> <dest-image> <threshold or interval>");
+            System.err.println("Usage: SimpleThreshold <source-image> <dest-image> <threshold or interval>");
             System.err.println("example:");
-            System.err.println("          Thresholding source.png dest.png 85");
-            System.err.println(" or       Thresholding source.png dest.png 150:220");
+            System.err.println("          SimpleThreshold source.png dest.png 85");
+            System.err.println(" or       SimpleThreshold source.png dest.png 150:220");
             System.exit(1);
         }
         String origPath = args[0];
