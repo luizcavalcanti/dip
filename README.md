@@ -22,6 +22,6 @@ List of features implemented so far:
 <b>Chapter 4</b>
 * Box blur
 
-
+<b>Misc</b>
 * Simple threshold segmentation
 * Adaptative threshold segmentation (Otsu's method)
