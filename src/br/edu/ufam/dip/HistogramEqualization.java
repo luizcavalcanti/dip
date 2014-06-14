@@ -1,8 +1,28 @@
-package br.edu.ufam;
+package br.edu.ufam.dip;
 
 import java.awt.Color;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+import br.edu.ufam.ImageIOUtils;
 
 public class HistogramEqualization {
+
+    public static void main(String[] args) throws IOException {
+        if (args.length != 2) {
+            System.err.println("Usage:    HistogramEqualization <source-image> <dest-image>");
+            System.err.println("example:  HistogramEqualization source.png dest.png");
+            System.exit(1);
+        }
+        String origPath = args[0];
+        String destPath = args[1];
+
+        BufferedImage image = ImageIOUtils.loadImageFromFile(origPath);
+        int[][] imageData = ImageIOUtils.getImageData(image);
+        int[][] output = equalizeHistogram(imageData, 256, 0, 255);
+        ImageIO.write(ImageIOUtils.getImageFromData(output), "png", new File(destPath));
+    }
 
     public static int[][] equalizeHistogram(int[][] imageData, int bucketCount, int min, int max) {
         float range = (max - min) + 1;
