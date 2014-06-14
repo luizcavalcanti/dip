@@ -18,16 +18,6 @@ public class ImageTransformations {
         return grayImageData;
     }
 
-    public static int[][] convertToNegative(int[][] dados) {
-        int[][] negative = new int[dados.length][dados[0].length];
-        for (int x = 0; x < negative.length; x++) {
-            for (int y = 0; y < negative[x].length; y++) {
-                negative[x][y] = Color.WHITE.getRGB() - dados[x][y];
-            }
-        }
-        return negative;
-    }
-
     public static int[][] resize(int[][] image, double zoomFactor) {
         int newWidth = (int) (image.length * zoomFactor);
         int newHeight = (int) (image[0].length * zoomFactor);
