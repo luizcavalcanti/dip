@@ -9,18 +9,60 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+import br.edu.ufam.ImageIOUtils;
+import java.awt.image.BufferedImage;
+
 
 public class AStar {
 
     private static int WALKING_4N = 0;
     private static int WALKING_8N = 1;
 
-    public static List<Point> get4NShortestPath(int[][] dados, Point partida, Point chegada) {
-        return aStar(dados, partida, chegada, WALKING_4N);
+    public static void main(String[] args) throws IOException {
+        if (args.length != 7) {
+            System.err.println("Usage:    AStar <source-image> <dest-image> <4-or-8-neighborhood> <start-x> <start-y> <goal-x> <goal-y>");
+            System.err.println("example:  AStar source.png dest.png 4 20 30 199 287");
+            System.err.println("8-neighborhood is default");
+            System.exit(1);
+        }
+
+        String origPath = args[0];
+        String destPath = args[1];
+        int neighbors = Integer.parseInt(args[2]);
+        int startX = Integer.parseInt(args[3]);
+        int startY = Integer.parseInt(args[4]);
+        int endX = Integer.parseInt(args[5]);
+        int endY = Integer.parseInt(args[6]);
+
+        BufferedImage image = ImageIOUtils.loadImageFromFile(origPath);
+        int[][] imageData = ImageIOUtils.getImageData(image);
+        int[][] output = ImageIOUtils.cloneImageData(imageData);
+        Point start = new Point(startX, startY);
+        Point end = new Point(endX, endY);
+
+        List<Point> path;
+        if (neighbors==4) {
+            path = get4NShortestPath(imageData, start, end);
+        } else {
+            path = get8NShortestPath(imageData, start, end);
+        }
+
+        for (Point p : path) {
+            output[(int)p.getX()][(int)p.getY()] = Color.YELLOW.getRGB();
+        }
+
+        ImageIO.write(ImageIOUtils.getImageFromData(output), "png", new File(destPath));
     }
 
-    public static List<Point> get8NShortestPath(int[][] dados, Point partida, Point chegada) {
-        return aStar(dados, partida, chegada, WALKING_8N);
+    public static List<Point> get4NShortestPath(int[][] imageData, Point start, Point end) {
+        return aStar(imageData, start, end, WALKING_4N);
+    }
+
+    public static List<Point> get8NShortestPath(int[][] imageData, Point start, Point end) {
+        return aStar(imageData, start, end, WALKING_8N);
     }
 
     private static List<Point> aStar(int[][] imageData, Point start, Point end, int walkingMethod) {
