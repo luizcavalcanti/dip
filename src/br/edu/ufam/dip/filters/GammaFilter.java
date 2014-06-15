@@ -1,8 +1,29 @@
 package br.edu.ufam.dip.filters;
 
 import java.awt.Color;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+import br.edu.ufam.ImageIOUtils;
 
 public class GammaFilter {
+
+    public static void main(String[] args) throws IOException {
+        if (args.length != 3) {
+            System.err.println("Usage:    GammaFilter <source-image> <dest-image> <gamma>");
+            System.err.println("example:  GammaFilter source.png dest.png 0.4");
+            System.exit(1);
+        }
+        String origPath = args[0];
+        String destPath = args[1];
+        double gamma = Double.parseDouble(args[2]);
+
+        BufferedImage image = ImageIOUtils.loadImageFromFile(origPath);
+        int[][] imageData = ImageIOUtils.getImageData(image);
+        int[][] output = applyFilter(imageData, gamma);
+        ImageIO.write(ImageIOUtils.getImageFromData(output), "png", new File(destPath));
+    }
 
     public static int[][] applyFilter(int[][] image, double gamma) {
         int width = image.length;
