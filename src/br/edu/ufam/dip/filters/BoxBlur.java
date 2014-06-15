@@ -1,10 +1,34 @@
 package br.edu.ufam.dip.filters;
 
 import java.awt.Color;
-
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 import br.edu.ufam.ImageIOUtils;
 
 public class BoxBlur {
+
+    public static void main(String[] args) throws IOException {
+        if (args.length != 3) {
+            System.err.println("Usage:    BoxBlur <source-image> <dest-image> <iteractions>");
+            System.err.println("example:  BoxBlur source.png dest.png 20");
+            System.exit(1);
+        }
+        String origPath = args[0];
+        String destPath = args[1];
+        int iteractions = Integer.parseInt(args[2]);
+
+        BufferedImage image = ImageIOUtils.loadImageFromFile(origPath);
+        int[][] imageData = ImageIOUtils.getImageData(image);
+        int[][] output = ImageIOUtils.cloneImageData(imageData);
+
+        for (int i=0; i<iteractions; i++) {
+            output = applyFilter(output);
+        }
+
+        ImageIO.write(ImageIOUtils.getImageFromData(output), "png", new File(destPath));
+    }
 
     public static int[][] applyFilter(int[][] image) {
         int[][] result = ImageIOUtils.cloneImageData(image);
