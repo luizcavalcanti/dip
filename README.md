@@ -11,7 +11,8 @@ List of features implemented so far:
 * Minimum path with 4-neighbor search
 * Minimum path with 8-neighbor search
 * Image clipping
-* Image scaling (linear interpolation)
+* Linear interpolation
+* Bilinear interpolation
 * Histogram equalization
 * Search for connected regions
 * Region of interest
