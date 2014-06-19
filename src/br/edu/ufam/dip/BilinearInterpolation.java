@@ -60,7 +60,7 @@ public class BilinearInterpolation {
                 red = ((a>>16)&0xff)*(1-diffX)*(1-diffY) + ((b>>16)&0xff)*(diffX)*(1-diffY) +
                       ((c>>16)&0xff)*(diffY)*(1-diffX)   + ((d>>16)&0xff)*(diffX*diffY);
 
-                output[i][j] = 0xff000000 | // hardcode alpha
+                output[i][j] = 0xff000000 |
                     ((((int)red)<<16)&0xff0000) |
                     ((((int)green)<<8)&0xff00) |
                     ((int)blue);
