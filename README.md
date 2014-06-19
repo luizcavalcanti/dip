@@ -15,6 +15,7 @@ List of features implemented so far:
 * Histogram equalization
 * Search for connected regions
 * Region of interest
+* Image clipping
 
 <b>Chapter 3</b>
 * Gamma filter

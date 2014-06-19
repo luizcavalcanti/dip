@@ -10,8 +10,8 @@ public class Clip {
 
     public static void main(String[] args) throws IOException {
         if (args.length != 6) {
-            System.err.println("Usage:    NegativeFilter <source-image> <dest-image> <x> <y> <width> <height>");
-            System.err.println("example:  NegativeFilter source.png dest.png 0 20 40 50");
+            System.err.println("Usage:    Clip <source-image> <dest-image> <x> <y> <width> <height>");
+            System.err.println("example:  Clip source.png dest.png 0 20 40 50");
             System.exit(1);
         }
         String origPath = args[0];
