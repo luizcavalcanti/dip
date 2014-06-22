@@ -13,6 +13,7 @@ List of features implemented so far:
 * Image clipping
 * Linear interpolation
 * Bilinear interpolation
+* Bicubic interpolation
 * Histogram equalization
 * Search for connected regions
 * Region of interest
