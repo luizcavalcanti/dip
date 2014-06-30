@@ -7,9 +7,22 @@
         </delete>
     </target>
 
-    <target name="build" depends="clean">
+    <target name="compile">
         <mkdir dir="bin" />
-        <javac srcdir="src" destdir="bin" includeantruntime="false" />
+        <javac srcdir="src" destdir="bin" includeantruntime="false" debug="${debug}"/>
+    </target>
+
+    <target name="build" depends="clean">
+        <antcall target="compile">
+            <param name="debug" value="true"/>
+        </antcall>
+        <jar destfile="diplearnings.jar" basedir="bin" />
+    </target>
+
+    <target name="release" depends="clean">
+        <antcall target="compile">
+            <param name="debug" value="false"/>
+        </antcall>
         <jar destfile="diplearnings.jar" basedir="bin" />
     </target>
 
