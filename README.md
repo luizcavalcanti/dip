@@ -24,6 +24,7 @@ List of features implemented so far:
 * Edge Enhancing filter
 * Embossing filter
 * Box blur
+* Sobel operator
 
 <b>Misc</b>
 * Simple threshold segmentation
