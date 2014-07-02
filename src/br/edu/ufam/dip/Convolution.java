@@ -1,7 +1,5 @@
 package br.edu.ufam.dip;
 
-import java.awt.Color;
-
 public class Convolution {
 
     private static final int RED = 0;
@@ -12,47 +10,50 @@ public class Convolution {
         int[][] output = new int[image.length][image[0].length];
         for (int x = 0; x < image.length; x++) {
             for (int y = 0; y < image[0].length; y++) {
-                int sum = 0;
-                int r = getChannelSum(image, convMatrix, x, y, RED)/9;
-                r = Math.max(r,0);
-                // int g = getChannelSum(image, convMatrix, x, y, GREEN)/9;
-                // int b = getChannelSum(image, convMatrix, x, y, BLUE)/9;
-                if (r<0 || r>255)
-                    System.out.println("r: "+r);
-                output[x][y] = new Color(r,r,r).getRGB();
+                output[x][y] = getNeighborsMean(image, convMatrix, x, y);
             }
         }
         return output;
     }
 
-    private static int getChannelSum(int[][] image, int[][] convMatrix, int x, int y, int channel) {
+    private static int getNeighborsMean(int[][] image, int[][] convMatrix, int x, int y) {
         int sum = 0;
+        int count = 0;
         if (x + 1 < image.length) {
-            sum += (image[x + 1][y] & 0xff) * convMatrix[2][1];
+            sum += image[x + 1][y] * convMatrix[2][1];
+            count++;
         }
         if (y + 1 < image[0].length) {
-            sum += (image[x][y + 1] & 0xff) * convMatrix[1][2];
+            sum += image[x][y + 1] * convMatrix[1][2];
+            count++;
         }
         if (x > 0) {
-            sum += (image[x - 1][y] & 0xff) * convMatrix[0][1];
+            sum += image[x - 1][y] * convMatrix[0][1];
+            count++;
         }
         if (y > 0) {
-            sum += (image[x][y - 1] & 0xff) * convMatrix[1][0];
+            sum += image[x][y - 1] * convMatrix[1][0];
+            count++;
         }
         if (x + 1 < image.length && y + 1 < image[0].length) {
-            sum += (image[x + 1][y + 1] & 0xff) * convMatrix[2][2];
+            sum += image[x + 1][y + 1] * convMatrix[2][2];
+            count++;
         }
         if (x > 0 && y + 1 < image[0].length) {
-            sum += (image[x - 1][y + 1] & 0xff) * convMatrix[0][2];
+            sum += image[x - 1][y + 1] * convMatrix[0][2];
+            count++;
         }
         if (x > 0 && y > 0) {
-            sum += (image[x - 1][y - 1] & 0xff) * convMatrix[0][0];
+            sum += image[x - 1][y - 1] * convMatrix[0][0];
+            count++;
         }
         if (x + 1 < image.length && y > 0) {
-            sum += (image[x + 1][y - 1] & 0xff) * convMatrix[2][0];
+            sum += image[x + 1][y - 1] * convMatrix[2][0];
+            count++;
         }
-        sum += (image[x][y] & 0xff) * convMatrix[1][1];
-        return sum;
+        sum += image[x][y] * convMatrix[1][1];
+        count++;
+        return (int) (sum/count);
     }
 
 }

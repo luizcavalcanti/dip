@@ -29,4 +29,4 @@ List of features implemented so far:
 <b>Misc</b>
 * Simple threshold segmentation
 * Adaptative threshold segmentation (Otsu's method)
-* General convolution
+* Generic convolution
