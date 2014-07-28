@@ -26,6 +26,9 @@ List of features implemented so far:
 * Box blur
 * Sobel operator
 
+<b>Chapter 4</b>
+* Dilation
+
 <b>Misc</b>
 * Simple threshold segmentation
 * Adaptative threshold segmentation (Otsu's method)
